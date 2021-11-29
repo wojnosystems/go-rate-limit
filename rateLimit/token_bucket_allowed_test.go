@@ -19,7 +19,7 @@ var _ = Describe("TokenBucket.Allowed", func() {
 			BeforeEach(func() {
 				bucket = &TokenBucket{}
 			})
-			When("bucket has no tokens", func() {
+			When("bucket has no tokensAvailable", func() {
 				It("rejects", func() {
 					Expect(bucket.Allowed(unit)).Should(BeFalse())
 				})
@@ -42,9 +42,9 @@ var _ = Describe("TokenBucket.Allowed", func() {
 					})
 				})
 			})
-			When("bucket has tokens", func() {
+			When("bucket has tokensAvailable", func() {
 				BeforeEach(func() {
-					bucket.tokens = 2
+					bucket.tokensAvailable = 2
 				})
 				It("consumes them", func() {
 					Expect(bucket.Allowed(unit)).Should(BeTrue())
@@ -62,9 +62,9 @@ var _ = Describe("TokenBucket.Allowed", func() {
 					InitialTokens:        1,
 				})
 			})
-			When("bucket has no tokens", func() {
+			When("bucket has no tokensAvailable", func() {
 				BeforeEach(func() {
-					bucket.tokens = 0
+					bucket.tokensAvailable = 0
 				})
 				It("rejects", func() {
 					Expect(bucket.Allowed(unit)).Should(BeFalse())
@@ -81,8 +81,8 @@ var _ = Describe("TokenBucket.Allowed", func() {
 					})
 				})
 			})
-			When("bucket has tokens", func() {
-				When("all tokens are expended", func() {
+			When("bucket has tokensAvailable", func() {
+				When("all tokensAvailable are expended", func() {
 					BeforeEach(func() {
 						bucket.nowFactory = startAtAndAddDurations(
 							time.Date(2021, 1, 1, 0, 0, 0, 0, time.UTC),
@@ -95,7 +95,7 @@ var _ = Describe("TokenBucket.Allowed", func() {
 						Expect(bucket.Allowed(unit)).Should(BeFalse())
 					})
 				})
-				When("max tokens is reached", func() {
+				When("max tokensAvailable is reached", func() {
 					BeforeEach(func() {
 						bucket.nowFactory = startAtAndAddDurations(
 							time.Date(2021, 1, 1, 0, 0, 0, 0, time.UTC),
@@ -111,12 +111,12 @@ var _ = Describe("TokenBucket.Allowed", func() {
 					})
 				})
 			})
-			When("called with fractionally-generated tokens", func() {
+			When("called with fractionally-generated tokensAvailable", func() {
 				BeforeEach(func() {
 					bucket.opts.Capacity = 5
 					bucket.opts.TokensAddedPerSecond = 10.0
 					bucket.opts.InitialTokens = 0
-					bucket.tokens = 0
+					bucket.tokensAvailable = 0
 					bucket.nowFactory = startAtAndAddDurations(
 						time.Date(2021, 1, 1, 0, 0, 0, 0, time.UTC),
 						125*time.Millisecond,
@@ -126,7 +126,7 @@ var _ = Describe("TokenBucket.Allowed", func() {
 						1*time.Millisecond,
 					)
 				})
-				It("does not lose fractions of tokens", func() {
+				It("does not lose fractions of tokensAvailable", func() {
 					_ = bucket.Allowed(unit)
 					_ = bucket.Allowed(unit)
 					_ = bucket.Allowed(unit)
@@ -142,7 +142,7 @@ var _ = Describe("TokenBucket.Allowed", func() {
 			unit = 10
 		})
 
-		When("insufficient tokens", func() {
+		When("insufficient tokensAvailable", func() {
 			BeforeEach(func() {
 				bucket = NewTokenBucket(TokenBucketOpts{InitialTokens: unit / 2})
 			})
@@ -150,7 +150,7 @@ var _ = Describe("TokenBucket.Allowed", func() {
 				Expect(bucket.Allowed(unit)).Should(BeFalse())
 			})
 		})
-		When("sufficient tokens", func() {
+		When("sufficient tokensAvailable", func() {
 			BeforeEach(func() {
 				bucket = NewTokenBucket(TokenBucketOpts{InitialTokens: unit})
 			})

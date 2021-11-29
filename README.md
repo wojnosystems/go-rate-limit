@@ -6,6 +6,10 @@ An example Rate Limiter library used to control the rate that events occur, but 
 
 `go get -u github.com/wojnosystems/go-rate-limit`
 
+# Examples
+
+## Regular Token Bucket
+
 ```gopackage main
 
 import (
@@ -47,3 +51,88 @@ Because we're consuming 2 tokens every 100ms, but we replenish 1 token every 100
 2021/11/28 23:11:34 allowed!
 2021/11/28 23:11:34 done, finally not allowed
 ```
+
+## Bursting Token Bucket
+
+This is just like the regular TokenBucket, but it can optionally burst over the limit and refill more slowly. This bucket also supports non-1 tokenCosts.
+
+```go
+package main
+
+import (
+	"github.com/wojnosystems/go-rate-limit/rateLimit"
+	"log"
+	"time"
+)
+
+const (
+	actionCost = 2
+)
+
+func main() {
+	limiter := rateLimit.NewBurstingTokenBucket(
+		rateLimit.BurstingTokenBucketOpts{
+			Bucket: rateLimit.NewTokenBucket(rateLimit.TokenBucketOpts{
+				Capacity:             10,
+				TokensAddedPerSecond: 10,
+				InitialTokens:        5,
+			}),
+			Burst:  rateLimit.NewTokenBucket(rateLimit.TokenBucketOpts{
+				Capacity:             5,
+				TokensAddedPerSecond: 1,
+				InitialTokens:        1,
+			}),
+		})
+
+	for {
+		if !limiter.Allowed(actionCost) {
+			break
+		}
+		log.Println("allowed!")
+		time.Sleep(100 * time.Millisecond)
+	}
+	log.Println("done, finally not allowed")
+}
+```
+
+It will output:
+
+```text
+2021/11/28 23:53:18 allowed!
+2021/11/28 23:53:18 allowed!
+2021/11/28 23:53:18 allowed!
+2021/11/28 23:53:18 allowed!
+2021/11/28 23:53:18 allowed!
+2021/11/28 23:53:19 done, finally not allowed
+```
+
+You can see that, compared to the regular TokenBucket example, we were able to burst out an additional "allowed!" thanks to our bursting bucket.
+
+Usually, your main bucket fills a larger capacity quickly and your burst bucket fills a smaller capacity more slowly. That way, over time, you can burst, but it's smoothed out due to the slower re-generation rates.
+
+For example, if your API allows 20 requests per second, with a burst of an additional 5 every 30 seconds, you could set up the BurstingTokenBucket:
+
+```gopackage main
+
+import (
+	"github.com/wojnosystems/go-rate-limit/rateLimit"
+)
+
+func main() {
+	limiter := rateLimit.NewBurstingTokenBucket(
+		rateLimit.BurstingTokenBucketOpts{
+			Bucket: rateLimit.NewTokenBucket(rateLimit.TokenBucketOpts{
+				Capacity:             20,
+				TokensAddedPerSecond: 20,
+			}),
+			Burst:  rateLimit.NewTokenBucket(rateLimit.TokenBucketOpts{
+				Capacity:             5,
+				TokensAddedPerSecond: 5/30,
+			}),
+		})
+		
+    // ...
+}
+```
+
+This means that every 6 seconds, a new bursting token will be available, while 120 new regular tokens will be available to use (with a maximum of 20 at any given second).
