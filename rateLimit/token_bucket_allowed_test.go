@@ -134,6 +134,26 @@ var _ = Describe("TokenBucket.Allowed", func() {
 					Expect(bucket.Allowed(unit)).Should(BeTrue())
 				})
 			})
+			When("initial tokens exceed capacity", func() {
+				BeforeEach(func() {
+					bucket.tokensAvailable = bucket.opts.Capacity * 2
+					bucket.nowFactory = startAtAndAddDurations(
+						time.Date(2021, 1, 1, 0, 0, 0, 0, time.UTC),
+						1*time.Minute,
+						1*time.Millisecond,
+						1*time.Millisecond,
+						1*time.Millisecond,
+						1*time.Millisecond,
+					)
+				})
+				It("does not overfill", func() {
+					Expect(bucket.Allowed(unit)).Should(BeTrue())
+					Expect(bucket.Allowed(unit)).Should(BeTrue())
+					Expect(bucket.Allowed(unit)).Should(BeTrue())
+					Expect(bucket.Allowed(unit)).Should(BeTrue())
+					Expect(bucket.Allowed(unit)).Should(BeFalse())
+				})
+			})
 		})
 	})
 	When("tokenCost is 10", func() {

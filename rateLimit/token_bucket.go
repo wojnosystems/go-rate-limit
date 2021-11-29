@@ -98,6 +98,10 @@ func replenishTokens(tokens uint64,
 	updatedLastUpdated time.Time,
 	updatedRemainder float64) {
 
+	if tokens > maxTokens {
+		return tokens, lastUpdated, remainder
+	}
+
 	amountToAdd := tokensAddedPerSecond*now.Sub(lastUpdated).Seconds() + remainder
 	tokensToAdd := uint64(math.Floor(amountToAdd))
 	if tokensToAdd < 1 {
