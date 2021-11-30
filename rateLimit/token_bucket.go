@@ -1,17 +1,10 @@
 package rateLimit
 
 import (
+	"github.com/wojnosystems/go-time-factory/timeFactory"
 	"math"
 	"time"
 )
-
-var (
-	zeroTime = time.Time{}
-)
-
-func defaultNow() time.Time {
-	return time.Now()
-}
 
 type TokenBucketOpts struct {
 	// Capacity the maximum number of tokens the bucket may contain
@@ -25,7 +18,7 @@ type TokenBucketOpts struct {
 	InitialTokens uint64
 
 	// nowFactory allows us to simulate time
-	nowFactory nowFactory
+	nowFactory timeFactory.Now
 }
 
 // TokenBucket is a rate-limiter using a token bucket scheme to approximate rates
@@ -45,13 +38,10 @@ type TokenBucket struct {
 }
 
 func NewTokenBucket(opts TokenBucketOpts) *TokenBucket {
-	if opts.nowFactory == nil {
-		opts.nowFactory = defaultNow
-	}
 	return &TokenBucket{
 		opts:            opts,
 		tokensAvailable: opts.InitialTokens,
-		lastUpdated:     opts.nowFactory(),
+		lastUpdated:     opts.nowFactory.Get(),
 	}
 }
 
@@ -66,7 +56,7 @@ func (b *TokenBucket) allowed(cost uint64) bool {
 		b.tokensAvailable,
 		b.remainder,
 		b.lastUpdated,
-		b.opts.nowFactory(),
+		b.opts.nowFactory.Get(),
 		b.opts.TokensAddedPerSecond,
 		b.opts.Capacity)
 

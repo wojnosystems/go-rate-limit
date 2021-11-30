@@ -3,6 +3,7 @@ package rateLimit
 import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/wojnosystems/go-time-factory/timeFactory"
 	"time"
 )
 
@@ -26,7 +27,7 @@ var _ = Describe("TokenBucket.Allowed", func() {
 				When("time passes", func() {
 					BeforeEach(func() {
 						bucket = NewTokenBucket(TokenBucketOpts{
-							nowFactory: startAtAndAddDurations(
+							nowFactory: timeFactory.ReturnTimeWithDurations(
 								time.Date(2021, 1, 1, 0, 0, 0, 0, time.UTC),
 								10*time.Second,
 								1*time.Millisecond,
@@ -79,7 +80,7 @@ var _ = Describe("TokenBucket.Allowed", func() {
 				})
 				When("enough time has passed to fill", func() {
 					BeforeEach(func() {
-						opts.nowFactory = startAtAndAddDurations(
+						opts.nowFactory = timeFactory.ReturnTimeWithDurations(
 							time.Date(2021, 1, 1, 0, 0, 0, 0, time.UTC),
 							500*time.Millisecond,
 						)
@@ -93,7 +94,7 @@ var _ = Describe("TokenBucket.Allowed", func() {
 			When("bucket has tokens", func() {
 				When("all tokens are expended", func() {
 					BeforeEach(func() {
-						opts.nowFactory = startAtAndAddDurations(
+						opts.nowFactory = timeFactory.ReturnTimeWithDurations(
 							time.Date(2021, 1, 1, 0, 0, 0, 0, time.UTC),
 							1*time.Millisecond,
 							1*time.Millisecond,
@@ -107,7 +108,7 @@ var _ = Describe("TokenBucket.Allowed", func() {
 				})
 				When("max tokens is reached", func() {
 					BeforeEach(func() {
-						opts.nowFactory = startAtAndAddDurations(
+						opts.nowFactory = timeFactory.ReturnTimeWithDurations(
 							time.Date(2021, 1, 1, 0, 0, 0, 0, time.UTC),
 							10*time.Second,
 							1*time.Millisecond,
@@ -124,7 +125,7 @@ var _ = Describe("TokenBucket.Allowed", func() {
 			})
 			When("called with fractionally-generated tokens", func() {
 				BeforeEach(func() {
-					opts.nowFactory = startAtAndAddDurations(
+					opts.nowFactory = timeFactory.ReturnTimeWithDurations(
 						time.Date(2021, 1, 1, 0, 0, 0, 0, time.UTC),
 						125*time.Millisecond,
 						125*time.Millisecond,
@@ -148,7 +149,7 @@ var _ = Describe("TokenBucket.Allowed", func() {
 			})
 			When("initial tokens exceed capacity", func() {
 				BeforeEach(func() {
-					opts.nowFactory = startAtAndAddDurations(
+					opts.nowFactory = timeFactory.ReturnTimeWithDurations(
 						time.Date(2021, 1, 1, 0, 0, 0, 0, time.UTC),
 						1*time.Minute,
 						1*time.Millisecond,
