@@ -10,7 +10,8 @@ An example Rate Limiter library used to control the rate that events occur, but 
 
 ## Regular Token Bucket
 
-```gopackage main
+```go
+package main
 
 import (
 	"github.com/wojnosystems/go-rate-limit/rateLimit"
@@ -112,7 +113,8 @@ Usually, your main bucket fills a larger capacity quickly and your burst bucket 
 
 For example, if your API allows 20 requests per second, with a burst of an additional 5 every 30 seconds, you could set up the BurstingTokenBucket:
 
-```gopackage main
+```go
+package main
 
 import (
 	"github.com/wojnosystems/go-rate-limit/rateLimit"

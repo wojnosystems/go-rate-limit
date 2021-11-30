@@ -187,7 +187,7 @@ var _ = Describe("TokenBucket.Allowed", func() {
 			BeforeEach(func() {
 				bucket = NewTokenBucket(TokenBucketOpts{InitialTokens: unit})
 			})
-			It("rejects", func() {
+			It("allows", func() {
 				Expect(bucket.Allowed(unit)).Should(BeTrue())
 			})
 		})
