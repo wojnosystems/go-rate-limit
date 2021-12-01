@@ -183,6 +183,10 @@ var _ = Describe("TokenBucket.Allowed", func() {
 			It("rejects", func() {
 				Expect(bucket.Allowed(unit)).Should(BeFalse())
 			})
+			It("consumes all tokens", func() {
+				_ = bucket.Allowed(unit)
+				Expect(bucket.Allowed(1)).Should(BeFalse())
+			})
 		})
 		When("sufficient tokens", func() {
 			BeforeEach(func() {

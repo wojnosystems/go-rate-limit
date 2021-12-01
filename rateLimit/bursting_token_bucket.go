@@ -31,13 +31,12 @@ func NewBurstingTokenBucket(opts BurstingTokenBucketOpts) *BurstingTokenBucket {
 // Allowed returns true only if tokenCost tokensAvailable are available in both the regular bucket and bursting bucket.
 // If the tokenCost is not available, does not deduct the tokensAvailable and returns false
 func (b *BurstingTokenBucket) Allowed(tokenCost uint64) bool {
+	remainingBucketTokens := b.bucket.Tokens()
 	if b.bucket.Allowed(tokenCost) {
 		return true
 	}
-	remainingBucketTokens := b.bucket.Tokens()
 	if !b.burst.Allowed(tokenCost - remainingBucketTokens) {
 		return false
 	}
-	_ = b.bucket.Allowed(remainingBucketTokens)
 	return true
 }

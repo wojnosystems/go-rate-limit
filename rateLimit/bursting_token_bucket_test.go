@@ -37,9 +37,9 @@ var _ = Describe("BurstingTokenBucket.Allowed", func() {
 		It("rejects if over both", func() {
 			Expect(bursting.Allowed(7)).Should(BeFalse())
 		})
-		It("does not consume the bucket if rejected", func() {
+		It("doesconsume the bucket if rejected", func() {
 			bursting.Allowed(7)
-			Expect(bursting.Allowed(6)).Should(BeTrue())
+			Expect(bursting.Allowed(1)).Should(BeFalse())
 		})
 	})
 

@@ -61,6 +61,7 @@ func (b *TokenBucket) allowed(cost uint64) bool {
 		b.opts.Capacity)
 
 	if b.tokensAvailable < cost {
+		b.tokensAvailable = 0
 		return false
 	}
 	b.tokensAvailable -= cost
